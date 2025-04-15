@@ -18,3 +18,10 @@
 - **Frontend**: HTML, CSS, JavaScript  
 - **Backend/Database**: Firebase (Firestore + Authentication)  
 - **Hosting**: Firebase Hosting *(optional)*
+
+- ## Admin/User Login Credintial:
+- #Admin: admin@mail.com
+- password: admin123
+
+- #User:admin@mail.com
+- password:admin123
