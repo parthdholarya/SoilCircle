@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="admin-home.css" />
+    <title>SoilCircle - Add Distributor</title>
+
+    <style>
+  .form-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background-color: #f9f9f9;
+}
+
+.form-card.small {
+  background: white;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-card.small h2 {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  text-align: center;
+  color: #2c3e50;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #34495e;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 20em;
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.form-row {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.95rem;
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #1c5985;
+}
+
+.success-message {
+  color: green;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+
+  </style>
+  </head>
+  <body>
+    <header>
+      <h2>SoilCircle</h2>
+      <div>
+        <span id="username">Welcome</span>
+      </div>
+    </header>
+
+    <nav
+      style="background-color: #34495e; padding: 0.5rem; text-align: center;">
+      <a href="admin-home.html">Admin Home</a>
+      <a href="admin-add-soil.html">Add Soil</a>
+      <a href="add-distributor.html">Add Distributor</a>
+      <a href="view-soil-types.html">View Soils</a>
+      <a href="view-distributors.html">View Distributors</a>
+    </nav>
+
+    <main class="form-container">
+      <div class="form-card">
+        <h2>➕ Add Distributor</h2>
+        <form id="distributorForm">
+          <div class="form-group">
+            <label for="name">Distributor Name</label>
+            <input type="text" id="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="contact">Contact Person</label>
+            <input type="text" id="contact" required />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" required />
+          </div>
+
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" required />
+          </div>
+
+          <div class="form-group">
+            <label for="products">Products (comma-separated)</label>
+            <input type="text" id="products" required />
+          </div>
+
+          <div class="form-group">
+            <label for="soilTypes">Soil Types (comma-separated)</label>
+            <input type="text" id="soilTypes" required />
+          </div>
+
+          <div class="form-group">
+            <label for="price">Price (₹)</label>
+            <input type="text" id="price" required />
+          </div>
+
+          <button type="submit">Add Distributor</button>
+          <p id="message" class="success-message"></p>
+        </form>
+      </div>
+    </main>
+
+    <div class="footer">
+      <p>© 2025 SoilCircle | <a href="https://github.com/your-repo"
+          target="_blank" style="color: lightblue;">GitHub Repo</a></p>
+    </div>
+
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_Ba657n6BGKDl_KYUOUFf09omlY2z7JQ",
+      authDomain: "soilcircle-10921.firebaseapp.com",
+      projectId: "soilcircle-10921",
+      storageBucket: "soilcircle-10921.appspot.com",
+      messagingSenderId: "1075060541688",
+      appId: "1:1075060541688:web:be8431d0a6567a605c130d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const adminEmail = "admin@mail.com";
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        if (user.email !== adminEmail) {
+          alert("Access Denied: Admins only.");
+          window.location.href = "home.html";
+        } else {
+          document.getElementById("username").innerText = `Welcome, ${user.email}`;
+        }
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    document.getElementById("distributorForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const contact = document.getElementById("contact").value;
+      const email = document.getElementById("email").value;
+      const location = document.getElementById("location").value;
+      const products = document.getElementById("products").value.split(",").map(p => p.trim());
+      const soilTypes = document.getElementById("soilTypes").value.split(",").map(s => s.trim());
+      const price = document.getElementById("price").value;
+      const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+      try {
+        await db.collection("distributors").add({
+          name,
+          contact,
+          email,
+          location,
+          products,
+          soilTypes,
+          price,
+          timestamp
+        });
+
+        document.getElementById("message").textContent = "Distributor added successfully!";
+        document.getElementById("distributorForm").reset();
+      } catch (err) {
+        console.error("Error:", err.message);
+        document.getElementById("message").textContent = "❌ Failed to add distributor.";
+      }
+    });
+  </script>
+  </body>
+</html>

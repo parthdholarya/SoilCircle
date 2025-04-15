@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="home.css">
+    <title>SoilCircle - Home</title>
+  </head>
+  <body>
+    <header>
+      <h2>
+        SoilCircle
+      </h2>
+
+      <div>
+        <span id="username">Welcome</span>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <nav
+      style="background-color: #34495e; padding: 0.5rem; text-align: center;">
+      <a href="view-soil-details.html">View Soils</a>
+      <a href="view-distributors.html">View Distributors</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <section class="welcome">
+      <h1>Welcome to SoilCircle</h1>
+      <p>Your platform for smart and efficient soil farming management.</p>
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <h3>📋 View Soil Data</h3>
+        <a href="view-soil-details.html">
+          <button>View</button>
+        </a>
+      </div>
+
+      <div class="card">
+        <h3>🚛 View Distributors</h3>
+        <a href="view-distributors.html">
+          <button>View</button>
+        </a>
+      </div>
+    </section>
+
+    <main>
+      <section class="info-section">
+        <h2>🧪 Agriculture Soil Information</h2>
+        <p>
+          Soil is a critical resource in agriculture. It provides essential
+          nutrients, water, and support
+          for plants. There are various soil types including:
+        </p>
+        <ul>
+          <li><strong>Clay Soil:</strong> Rich in nutrients but poor
+            drainage.</li>
+          <li><strong>Sandy Soil:</strong> Good drainage but low in
+            nutrients.</li>
+          <li><strong>Silt Soil:</strong> Fertile and holds moisture well.</li>
+          <li><strong>Loamy Soil:</strong> Ideal for most crops – balanced
+            texture, nutrients, and drainage.</li>
+        </ul>
+        <p>
+          Good soil management practices such as crop rotation, composting, and
+          reduced chemical usage
+          help maintain soil fertility and sustainability.
+        </p>
+      </section>
+    </main>
+
+    <div class="footer">
+      <p>© 2025 SoilCircle | <a href="https://github.com/your-repo"
+          target="_blank" style="color: lightblue;">GitHub Repo</a></p>
+    </div>
+
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_Ba657n6BGKDl_KYUOUFf09omlY2z7JQ",
+      authDomain: "soilcircle-10921.firebaseapp.com",
+      projectId: "soilcircle-10921",
+      storageBucket: "soilcircle-10921.appspot.com",
+      messagingSenderId: "1075060541688",
+      appId: "1:1075060541688:web:be8431d0a6567a605c130d",
+      measurementId: "G-98MBVF1KQF"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("username").innerText = `Welcome, ${user.email}`;
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    }
+  </script>
+  </body>
+</html>

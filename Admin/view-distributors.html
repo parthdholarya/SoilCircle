@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="admin-home.css" />
+    <title>Admin - Manage Distributors</title>
+    <style>
+
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #2980b9;
+      color: white;
+    }
+
+    td button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    .edit-btn {
+      background-color: #f1c40f;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .refresh-btn {
+      margin-bottom: 10px;
+      background-color: #2980b9;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .edit-form input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .edit-form button {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .edit-row td {
+      background-color: #f4faff;
+    }
+
+    .add-btn {
+      background-color: #2980b9;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto;
+    }
+  </style>
+  </head>
+  <body>
+
+    <!-- Header (same as user side) -->
+    <header>
+      <h2>SoilCircle</h2>
+      <div>
+        <span id="username">Welcome, Admin</span>
+      </div>
+    </header>
+
+    <!-- Navbar (same layout as user) -->
+    <nav
+      style="background-color: #34495e; padding: 0.5rem; text-align: center;">
+      <a href="admin-home.html">Admin Home</a>
+      <a href="admin-add-soil.html">Add Soil</a>
+      <a href="add-distributor.html">Add Distributor</a>
+      <a href="view-soil-types.html">View Soils</a>
+      <a href="view-distributors.html">View Distributors</a>
+    </nav>
+
+    <h2>🏪 Admin - Manage Distributors</h2>
+    <button class="refresh-btn" onclick="loadDistributors()">🔄 Refresh
+      List</button>
+    <button class="add-btn"
+      onclick="window.location.href='add-distributor.html'">➕ Add New
+      Distributor</button>
+
+    <table id="distributorTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Region</th>
+          <th>Contact</th>
+          <th>Soil Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <br><br><br>
+    <!-- Footer (same as user) -->
+    <div class="footer">
+      <p>© 2025 SoilCircle |
+        <a href="https://github.com/your-repo" target="_blank"
+          style="color: lightblue;">GitHub Repo</a>
+      </p>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script>
+   const firebaseConfig = {
+    apiKey: "AIzaSyC_Ba657n6BGKDl_KYUOUFf09omlY2z7JQ",
+    authDomain: "soilcircle-10921.firebaseapp.com",
+    projectId: "soilcircle-10921",
+    storageBucket: "soilcircle-10921.appspot.com",
+    messagingSenderId: "1075060541688",
+    appId: "1:1075060541688:web:be8431d0a6567a605c130d"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const allowedAdmin = "admin@mail.com"; // your admin email here
+
+  let currentEditRow = null;
+
+  // ✅ Auth check
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (!user) {
+      window.location.href = "index.html"; // not logged in
+      return;
+    }
+
+    if (user.email !== allowedAdmin) {
+      alert("Access denied. Admin only.");
+      window.location.href = "home.html";
+      return;
+    }
+
+    // ✅ Logged in as admin
+    document.getElementById("username").innerText = `Welcome, ${user.email}`;
+    await loadDistributors();
+  });
+
+  // ✅ Load distributor data
+  async function loadDistributors() {
+    const tableBody = document.querySelector("#distributorTable tbody");
+    tableBody.innerHTML = "";
+
+    const snapshot = await db.collection("distributors").get();
+    snapshot.forEach(doc => {
+      const distributor = doc.data();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${distributor.name}</td>
+        <td>${distributor.region}</td>
+        <td>${distributor.contact}</td>
+        <td>${distributor.soilType}</td>
+        <td>
+          <button class="edit-btn" onclick="openEditForm('${doc.id}', ${JSON.stringify(distributor).replace(/"/g, '&quot;')}, this)">Edit</button>
+          <button class="delete-btn" onclick="deleteDistributor('${doc.id}')">Delete</button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  async function deleteDistributor(id) {
+    if (confirm("Delete this distributor?")) {
+      await db.collection("distributors").doc(id).delete();
+      alert("Deleted!");
+      loadDistributors();
+    }
+  }
+
+  function openEditForm(id, distributor, btn) {
+    if (currentEditRow) {
+      currentEditRow.remove();
+      currentEditRow = null;
+    }
+
+    const row = btn.closest("tr");
+    const formRow = document.createElement("tr");
+    formRow.classList.add("edit-row");
+
+    formRow.innerHTML = `
+      <td colspan="5">
+        <form class="edit-form">
+          <label>Name</label>
+          <input name="name" value="${distributor.name}" required />
+          <label>Region</label>
+          <input name="region" value="${distributor.region}" required />
+          <label>Contact</label>
+          <input name="contact" value="${distributor.contact}" required />
+          <label>Soil Type</label>
+          <input name="soilType" value="${distributor.soilType}" required />
+          <button type="submit">✅ Update</button>
+        </form>
+      </td>
+    `;
+
+    row.parentNode.insertBefore(formRow, row.nextSibling);
+    currentEditRow = formRow;
+
+    const form = formRow.querySelector("form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const updated = {
+        name: form.name.value,
+        region: form.region.value,
+        contact: form.contact.value,
+        soilType: form.soilType.value
+      };
+      await db.collection("distributors").doc(id).update(updated);
+      alert("Distributor updated!");
+      loadDistributors();
+    });
+  }
+  </script>
+  </body>
+</html>

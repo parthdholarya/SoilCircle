@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - SoilCircle</title>
+  <link rel="stylesheet" href="admin-home.css" />
+</head>
+<body>
+
+  <!-- Header (same as user side) -->
+  <header>
+    <h2>SoilCircle</h2>
+    <div>
+      <span id="username">Welcome, Admin</span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- Navbar (same layout as user) -->
+  <nav style="background-color: #34495e; padding: 0.5rem; text-align: center;">
+    <a href="admin-home.html">Admin Home</a>
+    <a href="admin-add-soil.html">Add Soil</a>
+    <a href="add-distributor.html">Add Distributor</a>
+    <a href="view-soil-types.html">View Soils</a>
+    <a href="view-distributors.html">View Distributors</a>
+  </nav>
+
+  <!-- Main content (cards like user dashboard) -->
+  <main>
+    <section class="welcome">
+      <h1>🛠️ Admin Dashboard</h1>
+      <p>Welcome to the SoilCircle Admin Panel. Manage everything from one place.</p>
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <h3>➕ Add Soil Type</h3>
+        <a href="admin-add-soil.html"><button>Add</button></a>
+      </div>
+
+      <div class="card">
+        <h3>🌱 View Soil Types</h3>
+        <a href="view-soil-types.html"><button>View</button></a>
+      </div>
+
+      <div class="card">
+        <h3>➕ Add Distributor</h3>
+        <a href="add-distributor.html"><button>Add</button></a>
+      </div>
+
+      <div class="card">
+        <h3>🚛 View Distributors</h3>
+        <a href="view-distributors.html"><button>View</button></a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer (same as user) -->
+  <div class="footer">
+    <p>© 2025 SoilCircle | 
+      <a href="https://github.com/your-repo" target="_blank" style="color: lightblue;">GitHub Repo</a>
+    </p>
+  </div>
+
+  <!-- Firebase Auth & Admin Check -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_Ba657n6BGKDl_KYUOUFf09omlY2z7JQ",
+      authDomain: "soilcircle-10921.firebaseapp.com",
+      projectId: "soilcircle-10921",
+      storageBucket: "soilcircle-10921.appspot.com",
+      messagingSenderId: "1075060541688",
+      appId: "1:1075060541688:web:be8431d0a6567a605c130d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const adminEmails = ["admin@mail.com"]; // Add more if needed
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user && adminEmails.includes(user.email)) {
+        document.getElementById("username").innerText = `Welcome, ${user.email}`;
+      } else {
+        window.location.href = "admin-login.html";
+      }
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "admin-login.html";
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="admin-home.css">
+    <title>SoilCircle - Add Soil</title>
+
+    <style>
+  .form-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background-color: #f9f9f9;
+}
+
+.form-card.small {
+  background: white;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-card.small h2 {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  text-align: center;
+  color: #2c3e50;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #34495e;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.form-row {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.95rem;
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #1c5985;
+}
+
+.success-message {
+  color: green;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+
+  </style>
+  </head>
+  <body>
+    <header>
+      <h2>SoilCircle</h2>
+      <div>
+        <span id="username">Welcome</span>
+      </div>
+    </header>
+
+    <nav
+      style="background-color: #34495e; padding: 0.5rem; text-align: center;">
+    <a href="admin-home.html">Admin Home</a>
+    <a href="admin-add-soil.html">Add Soil</a>
+    <a href="add-distributor.html">Add Distributor</a>
+    <a href="view-soil-types.html">View Soils</a>
+    <a href="view-distributors.html">View Distributors</a>
+    </nav>
+
+    <main class="form-container">
+      <div class="form-card">
+        <h2>📝 Add Soil Information</h2>
+        <form id="soilForm">
+          <div class="form-group">
+            <label for="name">Soil Name</label>
+            <input type="text" id="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" rows="3" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="bestCrops">Best Crops</label>
+            <input type="text" id="bestCrops" required />
+          </div>
+
+          <div class="form-group">
+            <label for="ph">pH Value</label>
+            <input type="number" step="0.1" id="ph" required />
+          </div>
+
+          <div class="form-group">
+            <label for="foundIn">Found In</label>
+            <input type="text" id="foundIn" required />
+          </div>
+
+          <button type="submit">Add Soil</button>
+          <p id="message" class="success-message"></p>
+        </form>
+      </div>
+    </main>
+
+    <div class="footer">
+      <p>© 2025 SoilCircle | <a href="https://github.com/your-repo"
+          target="_blank" style="color: lightblue;">GitHub Repo</a></p>
+    </div>
+
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_Ba657n6BGKDl_KYUOUFf09omlY2z7JQ",
+      authDomain: "soilcircle-10921.firebaseapp.com",
+      projectId: "soilcircle-10921",
+      storageBucket: "soilcircle-10921.appspot.com",
+      messagingSenderId: "1075060541688",
+      appId: "1:1075060541688:web:be8431d0a6567a605c130d",
+      measurementId: "G-98MBVF1KQF"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const allowedAdmin = "admin@mail.com"; // Replace with your admin email
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        if (user.email !== allowedAdmin) {
+          alert("Access denied. Admin only.");
+          window.location.href = "home.html";
+        } else {
+          document.getElementById("username").innerText = `Welcome, ${user.email}`;
+        }
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    document.getElementById("soilForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const description = document.getElementById("description").value;
+      const bestCrops = document.getElementById("bestCrops").value;
+      const ph = parseFloat(document.getElementById("ph").value);
+      const foundIn = document.getElementById("foundIn").value;
+      const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+      try {
+        await db.collection("soils").add({ name, description, bestCrops, ph, foundIn, timestamp });
+        document.getElementById("message").innerText = "Soil data added successfully!";
+        document.getElementById("soilForm").reset();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+  </script>
+  </body>
+</html>
